@@ -9,7 +9,7 @@ func MainPage(&mut page) {
             <!-- Header & Nav -->
             <header>
               <div class="container nav">
-                <a href="#" class="logo"><img src="/assets/Logo.png" alt="Logo"/>Chemical</a>
+                <a href="#" class="logo"><img src="/assets/Logo.png" alt="Logo" height="48px"/>Chemical</a>
                 <nav class="nav-links">
                   <a href="https://chemicallang.github.io/learn-chemical" target="_blank"><button class="btn btn-primary">Get Started</button></a>
                 </nav>
