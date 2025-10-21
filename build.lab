@@ -3,7 +3,8 @@ import std
 
 import "@cstd/build.lab" as cstdMod
 import "@std/build.lab" as stdMod
-import "@html/build.lab" as htmlMod
+import "@html_cbi/build.lab" as htmlMod
+import "@page/build.lab" as pageMod
 
 using namespace std;
 
@@ -16,28 +17,40 @@ var jc : JobAndContext
 
 func build(ctx : *mut AppBuildContext) {
 
+    // the exe job
+    const exe_job = ctx.build_exe(std::string_view("docs"))
+
     // the cstd module
-    var cstd_module = cstdMod.get(ctx);
+    var cstd_module = cstdMod.build(ctx, exe_job);
     if(cstd_module == null) {
         return
     }
 
     // the std module
-    var std_module = stdMod.get(ctx);
+    var std_module = stdMod.build(ctx, exe_job);
     if(std_module == null) {
         return
     }
 
-    // the std module
-    var html_module = htmlMod.get(ctx);
+    // the html module
+    var html_module = htmlMod.build(ctx, exe_job);
     if(html_module == null) {
         return
     }
 
-    var dependencies = [ cstd_module, std_module, html_module ]
+    // the html module
+    var page_module = pageMod.build(ctx, exe_job);
+    if(page_module == null) {
+        return
+    }
+
+    const depsArr = [ cstd_module, std_module, html_module, page_module ]
+    var dependencies = std::span<*mut Module>(depsArr)
     const module = ctx.chemical_dir_module(std::string_view(""), std::string_view("main"), lab::rel_path_to("src").to_view(), dependencies);
 
-    const exe_job = ctx.build_exe(std::string_view("docs"), [ module ])
+    // add the single module
+    ctx.add_module(exe_job, module)
+
     jc.ctx = ctx;
     jc.job = exe_job;
     ctx.on_finished((data : *void) => {
