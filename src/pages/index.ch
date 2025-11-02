@@ -18,6 +18,7 @@ func MainPage(&mut page) {
                 <a href="#" class="logo"><img src="/assets/Logo.png" alt="Logo" height="48px"/>Chemical</a>
                 <nav class="nav-links">
                   <a href="https://chemicallang.github.io/learn-chemical" target="_blank"><button class="btn btn-primary">Get Started</button></a>
+                  <a href="https://chemicallang.com/playground" target="_blank"><button class="btn btn-primary">Playground</button></a>
                 </nav>
               </div>
             </header>
