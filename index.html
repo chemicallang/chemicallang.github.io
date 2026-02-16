@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="Favicon256.png" type="image/png">
+    <title>Chemical - Modern Systems Programming Language</title>
+    <meta name="description"
+        content="Chemical is a modern systems programming language that compiles to C, combining low-level power with high-level developer experience and native web integration.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #020617;
+            --bg-secondary: #0f172a;
+            --bg-tertiary: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --accent-glow: rgba(56, 189, 248, 0.2);
+            --border: rgba(255, 255, 255, 0.1);
+            --radius: 16px;
+            --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --gradient-primary: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+
+            /* Chemical-themed colors */
+            --atom-hydrogen: #60a5fa;
+            --atom-carbon: #94a3b8;
+            --atom-oxygen: #f472b6;
+            --atom-nitrogen: #a78bfa;
+            --bond-color: rgba(56, 189, 248, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.5;
+            background: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+        }
+
+        header {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo span {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 2rem 2rem 4rem 2rem;
+            position: relative;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 5rem;
+            position: relative;
+            z-index: 100;
+            /* Ensure dropdowns appear above subsequent sections */
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 400px;
+            background: var(--accent);
+            filter: blur(120px);
+            opacity: 0.08;
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.03em;
+        }
+
+        .hero h1 span {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 2rem auto;
+            font-weight: 400;
+        }
+
+        .download-container {
+            max-width: 650px;
+            margin: 2.5rem auto 0 auto;
+        }
+
+        .download-btn-group {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1000;
+            /* Ensure dropdown is above sibling elements like install-box */
+        }
+
+        .download-btn-main {
+            flex: 1;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.1rem 2.5rem;
+            font-size: 1.15rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 14px 0 0 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            box-shadow: 0 10px 20px -5px rgba(56, 189, 248, 0.4);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            letter-spacing: -0.01em;
+        }
+
+        .download-btn-main:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 20px 30px -10px rgba(56, 189, 248, 0.6);
+            filter: brightness(1.1);
+        }
+
+        .download-dropdown-btn {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.1rem 1.4rem;
+            border: none;
+            border-left: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 0 14px 14px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 10px 20px -5px rgba(56, 189, 248, 0.4);
+        }
+
+        .download-dropdown-btn:hover {
+            filter: brightness(1.1);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.75rem);
+            right: 0;
+            background: rgba(15, 23, 42, 0.95);
+            /* More opaque for better contrast */
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            /* Themed border */
+            border-radius: 18px;
+            padding: 0.75rem;
+            min-width: 320px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.1);
+            z-index: 10000;
+            display: none;
+            backdrop-filter: blur(24px) saturate(180%);
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            animation: dropdownSlide 0.2s ease;
+        }
+
+        @keyframes dropdownSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-section {
+            margin-bottom: 0.75rem;
+        }
+
+        .dropdown-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .dropdown-section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.5rem 0.75rem 0.25rem 0.75rem;
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+        }
+
+        .dropdown-item-label {
+            display: block;
+            font-weight: 600;
+        }
+
+        .dropdown-item-desc {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.15rem;
+        }
+
+        .install-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            backdrop-filter: blur(12px);
+        }
+
+        .install-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .install-command {
+            background: #020617;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.85rem 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .install-command:hover {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .install-command code {
+            flex: 1;
+            user-select: all;
+        }
+
+        .copy-btn {
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 0.4rem 0.85rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .copy-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .nav-section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .nav-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            border-radius: var(--radius);
+            text-decoration: none;
+            color: var(--text-primary);
+            backdrop-filter: blur(12px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .nav-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--accent-glow);
+        }
+
+        .nav-card:hover::before {
+            opacity: 1;
+        }
+
+        .nav-card-icon {
+            font-size: 2.5rem;
+            line-height: 1;
+            filter: drop-shadow(0 0 12px var(--accent-glow));
+        }
+
+        .nav-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-card p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .nav-card-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            align-self: flex-start;
+        }
+
+        .download-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 3rem 2rem;
+            margin-top: 3rem;
+        }
+
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .download-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .download-card:hover {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .download-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .download-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .package-managers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .package-badge {
+            padding: 0.5rem 1rem;
+            background: rgba(148, 163, 184, 0.1);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+        }
+
+        footer {
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+            font-size: 0.95rem;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: reveal 0.8s forwards;
+        }
+
+        @keyframes reveal {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .install-command {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .copy-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            header {
+                padding: 1.5rem;
+            }
+
+            main {
+                padding: 1.5rem;
+            }
+
+            .download-section {
+                padding: 2rem 1.5rem;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <header class="scroll-reveal">
+        <a href="#" class="logo">
+            <img src="Logo512.png" width="64px" height="64px" style="margin-right:8px;" />
+            <span>Chemical</span>
+        </a>
+    </header>
+
+    <main>
+        <section class="hero scroll-reveal">
+            <h1>Welcome to <span>Chemical</span></h1>
+            <p>A modern systems programming language that compiles to C, combining low-level power with high-level
+                developer experience and native web integration.</p>
+
+            <div class="download-container">
+                <div class="download-btn-group">
+                    <a href="https://github.com/chemicallang/chemical/releases/latest" id="main-download-btn"
+                        class="download-btn-main">
+                        <span id="download-icon">📥</span>
+                        <span id="download-text">Download Chemical</span>
+                    </a>
+                    <button class="download-dropdown-btn" id="dropdown-toggle" title="Other operating systems">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path
+                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                        </svg>
+                        <div class="dropdown-menu" id="dropdown-menu">
+                            <div class="dropdown-section">
+                                <div class="dropdown-section-title">Windows</div>
+                                <a href="https://github.com/chemicallang/chemical/releases/download/v0.0.30/windows-x64.zip"
+                                    class="dropdown-item">
+                                    <span class="dropdown-item-label">Windows x64 (LLVM)</span>
+                                    <span class="dropdown-item-desc">Portable ZIP - v0.0.30</span>
+                                </a>
+                                <a href="https://github.com/chemicallang/chemical/releases/download/v0.0.30/windows-x64-tcc.zip"
+                                    class="dropdown-item">
+                                    <span class="dropdown-item-label">Windows x64 (TinyCC)</span>
+                                    <span class="dropdown-item-desc">Fast Compilation</span>
+                                </a>
+                            </div>
+                            <div class="dropdown-section">
+                                <div class="dropdown-section-title">macOS</div>
+                                <a href="https://github.com/chemicallang/chemical/releases/download/v0.0.30/macos-arm64.zip"
+                                    class="dropdown-item">
+                                    <span class="dropdown-item-label">macOS ARM64</span>
+                                    <span class="dropdown-item-desc">Apple Silicon</span>
+                                </a>
+                                <a href="https://github.com/chemicallang/chemical/releases/download/v0.0.30/macos-x64.zip"
+                                    class="dropdown-item">
+                                    <span class="dropdown-item-label">macOS x64</span>
+                                    <span class="dropdown-item-desc">Intel</span>
+                                </a>
+                            </div>
+                            <div class="dropdown-section">
+                                <div class="dropdown-section-title">Linux</div>
+                                <a href="https://github.com/chemicallang/chemical/releases/download/v0.0.30/linux-x64.zip"
+                                    class="dropdown-item">
+                                    <span class="dropdown-item-label">Linux x64</span>
+                                    <span class="dropdown-item-desc">LLVM Backend</span>
+                                </a>
+                            </div>
+                            <div class="dropdown-section">
+                                <a href="https://github.com/chemicallang/chemical/releases" class="dropdown-item">
+                                    <span class="dropdown-item-label">All Releases</span>
+                                </a>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="install-box">
+                    <div class="install-label">Quick Install (Unix/Linux/macOS)</div>
+                    <div class="install-command">
+                        <code id="install-cmd">curl -sSL https://chemicallang.com/install.sh | bash</code>
+                        <button class="copy-btn" onclick="copyInstallCommand()">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="nav-section scroll-reveal" style="animation-delay: 0.2s">
+            <h2 class="section-title">Explore Chemical</h2>
+            <div class="nav-grid">
+                <a href="https://chemicallang.com/docs" class="nav-card">
+                    <div class="nav-card-icon">📖</div>
+                    <h3>Documentation</h3>
+                    <p>Complete guides, tutorials, and reference materials to get you started with Chemical. Learn the
+                        language syntax, best practices, and core concepts.</p>
+                </a>
+
+                <a href="https://chemicallang.com/api" class="nav-card">
+                    <div class="nav-card-icon">📚</div>
+                    <h3>API Reference</h3>
+                    <p>Comprehensive API documentation for Chemical's standard library, built-in modules, and core
+                        functionality.</p>
+                </a>
+
+                <a href="https://chemicallang.com/playground" class="nav-card">
+                    <div class="nav-card-icon">🎮</div>
+                    <h3>Playground</h3>
+                    <p>Write, compile, and run Chemical code directly in your browser. Experiment with the language
+                        without any installation.</p>
+                    <span class="nav-card-badge">Interactive</span>
+                </a>
+
+                <a href="https://chemicallang.github.io/components" class="nav-card">
+                    <div class="nav-card-icon">🧩</div>
+                    <h3>Components Showcase</h3>
+                    <p>Explore UI components built with Chemical's HTML/CSS macros. See how Chemical enables building
+                        reactive web interfaces like React components.</p>
+                    <span class="nav-card-badge">Demo</span>
+                </a>
+            </div>
+        </section>
+
+        <section class="download-section scroll-reveal" style="animation-delay: 0.4s">
+            <h2 class="section-title">Download Chemical</h2>
+
+            <div class="download-grid">
+                <div class="download-card">
+                    <h4>📦 Install Script</h4>
+                    <p>The fastest way to get started. Our install script automatically detects your platform and
+                        installs the latest version.</p>
+                    <p style="margin-top: 1rem;"><a href="https://chemicallang.com/install.sh"
+                            style="color: var(--accent); text-decoration: underline;">Download install.sh</a></p>
+                </div>
+
+                <div class="download-card">
+                    <h4>🔧 Manual Downloads</h4>
+                    <p>Download pre-built binaries for your platform from GitHub Releases. Available for Windows, Linux,
+                        and macOS (x64 & ARM64).</p>
+                    <p style="margin-top: 1rem;"><a href="https://github.com/chemicallang/chemical/releases"
+                            target="_blank" style="color: var(--accent); text-decoration: underline;">View Releases</a>
+                    </p>
+                </div>
+
+                <div class="download-card">
+                    <h4>📋 Package Managers</h4>
+                    <p>We're actively working on making Chemical available through major package managers for easier
+                        installation and updates.</p>
+                    <div class="package-managers">
+                        <span class="package-badge">apt</span>
+                        <span class="package-badge">brew</span>
+                        <span class="package-badge">choco</span>
+                        <span class="package-badge">Coming Soon</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="scroll-reveal">
+        &copy; 2026 Chemical Language. Crafted for the modern era.
+    </footer>
+
+    <script>
+        // Copy install command to clipboard
+        function copyInstallCommand() {
+            const cmd = document.getElementById('install-cmd').textContent;
+            if (!cmd) return;
+            navigator.clipboard.writeText(cmd).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        // OS-Aware Download Logic
+        function setupDownloadButton() {
+            const mainBtn = document.getElementById('main-download-btn');
+            const textEl = document.getElementById('download-text');
+            const iconEl = document.getElementById('download-icon');
+            if (!mainBtn || !textEl || !iconEl) return;
+
+            const platform = window.navigator.platform;
+
+            const links = {
+                windows: "https://github.com/chemicallang/chemical/releases/download/v0.0.30/windows-x64.zip",
+                macos: "https://github.com/chemicallang/chemical/releases/download/v0.0.30/macos-arm64.zip",
+                linux: "https://github.com/chemicallang/chemical/releases/download/v0.0.30/linux-x64.zip",
+                intel_mac: "https://github.com/chemicallang/chemical/releases/download/v0.0.30/windows-x64.zip" // Fallback to releases if unknown
+            };
+
+            if (/Win/.test(platform)) {
+                textEl.textContent = "Download for Windows (x64)";
+                mainBtn.href = links.windows;
+                iconEl.textContent = "🪟";
+            } else if (/Mac/.test(platform)) {
+                if (window.navigator.maxTouchPoints > 0 || /Apple/.test(window.navigator.vendor)) {
+                    textEl.textContent = "Download for macOS (ARM64)";
+                    mainBtn.href = links.macos;
+                } else {
+                    textEl.textContent = "Download for macOS (x64)";
+                    mainBtn.href = "https://github.com/chemicallang/chemical/releases/download/v0.0.30/macos-x64.zip";
+                }
+                iconEl.textContent = "🍎";
+            } else if (/Linux/.test(platform)) {
+                textEl.textContent = "Download for Linux (x64)";
+                mainBtn.href = links.linux;
+                iconEl.textContent = "🐧";
+            }
+        }
+
+        // Dropdown Logic
+        const dropdownToggle = document.getElementById('dropdown-toggle');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+
+        if (dropdownToggle && dropdownMenu) {
+            dropdownToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+            });
+
+            document.addEventListener('click', () => {
+                dropdownMenu.classList.remove('show');
+            });
+        }
+
+        setupDownloadButton();
+
+        // Enhanced Chemical-themed particle animation
+        const canvas = document.getElementById('bg-canvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            let atoms = [];
+            let explosions = [];
+            let trails = [];
+            const atomCount = 60;
+            const maxBondDistance = 140;
+            const mouseRadius = 200;
+            let mouse = { x: null, y: null };
+            let targetMouse = { x: null, y: null };
+            let attractMode = false;
+
+            const atomTypes = [
+                { color: 'rgba(96, 165, 250, 0.8)', radius: 3 },
+                { color: 'rgba(148, 163, 184, 0.7)', radius: 4.5 },
+                { color: 'rgba(244, 114, 182, 0.7)', radius: 3.5 },
+                { color: 'rgba(167, 139, 250, 0.7)', radius: 3.8 }
+            ];
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            canvas.addEventListener('mousemove', (e) => {
+                targetMouse.x = e.clientX;
+                targetMouse.y = e.clientY;
+            });
+            canvas.addEventListener('mouseleave', () => {
+                targetMouse.x = null;
+                targetMouse.y = null;
+            });
+
+            canvas.addEventListener('click', (e) => {
+                if (e.target.closest('.download-container')) return;
+                attractMode = !attractMode;
+                createExplosion(e.clientX, e.clientY);
+            });
+
+            function createExplosion(x, y) {
+                explosions.push({ x, y, r: 0, l: 1 });
+                atoms.forEach(a => {
+                    const dx = a.x - x, dy = a.y - y;
+                    const d = Math.sqrt(dx * dx + dy * dy);
+                    if (d < 200) {
+                        const f = (200 - d) / 200;
+                        a.vx += (dx / d) * f * 15;
+                        a.vy += (dy / d) * f * 15;
+                        a.e = 1;
+                    }
+                });
+            }
+
+            class Atom {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.vx = (Math.random() - 0.5) * 1.5;
+                    this.vy = (Math.random() - 0.5) * 1.5;
+                    this.t = atomTypes[Math.floor(Math.random() * atomTypes.length)];
+                    this.r = this.t.radius;
+                    this.e = 0;
+                    this.p = Math.random() * Math.PI * 2;
+                }
+                update() {
+                    if (targetMouse.x !== null) {
+                        if (mouse.x === null) { mouse.x = targetMouse.x; mouse.y = targetMouse.y; }
+                        else { mouse.x += (targetMouse.x - mouse.x) * 0.1; mouse.y += (targetMouse.y - mouse.y) * 0.1; }
+                    } else { mouse.x = null; }
+
+                    if (mouse.x !== null) {
+                        const dx = this.x - mouse.x, dy = this.y - mouse.y;
+                        const d = Math.sqrt(dx * dx + dy * dy);
+                        if (d < mouseRadius) {
+                            const f = (mouseRadius - d) / mouseRadius;
+                            const m = attractMode ? -1.5 : 2.0;
+                            this.vx += (dx / d) * f * m;
+                            this.vy += (dy / d) * f * m;
+                            this.e = Math.min(1, this.e + 0.1);
+                        } else this.e = Math.max(0, this.e - 0.03);
+                    } else this.e = Math.max(0, this.e - 0.02);
+
+                    this.x += this.vx; this.y += this.vy;
+                    this.vx *= 0.96; this.vy *= 0.96;
+                    this.p += 0.1;
+                    if (this.e > 0.5 && Math.random() < 0.2) trails.push({ x: this.x, y: this.y, c: this.t.color, l: 1 });
+
+                    if (this.x < 0 || this.x > canvas.width) this.vx *= -0.7;
+                    if (this.y < 0 || this.y > canvas.height) this.vy *= -0.7;
+                    this.x = Math.max(0, Math.min(canvas.width, this.x));
+                    this.y = Math.max(0, Math.min(canvas.height, this.y));
+                }
+                draw() {
+                    if (this.e > 0) {
+                        const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.r + this.e * 15);
+                        g.addColorStop(0, this.t.color);
+                        g.addColorStop(1, 'transparent');
+                        ctx.fillStyle = g;
+                        ctx.beginPath(); ctx.arc(this.x, this.y, this.r + this.e * 15, 0, Math.PI * 2); ctx.fill();
+                    }
+                    ctx.fillStyle = this.t.color;
+                    ctx.beginPath(); ctx.arc(this.x, this.y, this.r + (this.e > 0 ? Math.sin(this.p) * this.e * 2 : 0), 0, Math.PI * 2); ctx.fill();
+                }
+            }
+
+            for (let i = 0; i < atomCount; i++) atoms.push(new Atom());
+
+            function animate() {
+                try {
+                    // Update shared mouse state once per frame
+                    if (targetMouse.x !== null) {
+                        if (mouse.x === null) {
+                            mouse.x = targetMouse.x;
+                            mouse.y = targetMouse.y;
+                        } else {
+                            mouse.x += (targetMouse.x - mouse.x) * 0.15;
+                            mouse.y += (targetMouse.y - mouse.y) * 0.15;
+                        }
+                    } else {
+                        mouse.x = null;
+                    }
+
+                    ctx.fillStyle = 'rgba(2, 6, 23, 0.18)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    // Update and draw effects
+                    trails = trails.filter(t => {
+                        t.l -= 0.025;
+                        if (t.l > 0) {
+                            ctx.beginPath();
+                            ctx.arc(t.x, t.y, 1.5, 0, Math.PI * 2);
+                            const alpha = Math.max(0, t.l * 0.4);
+                            ctx.fillStyle = t.c.replace(/[\d.]+\)$/g, `${alpha})`);
+                            ctx.fill();
+                            return true;
+                        }
+                        return false;
+                    });
+
+                    explosions = explosions.filter(e => {
+                        e.r += 12;
+                        e.l -= 0.04;
+                        if (e.l > 0) {
+                            ctx.beginPath();
+                            ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
+                            ctx.strokeStyle = `rgba(56, 189, 248, ${e.l * 0.5})`;
+                            ctx.lineWidth = 2;
+                            ctx.stroke();
+                            return true;
+                        }
+                        return false;
+                    });
+
+                    // Update and draw atoms + bonds
+                    atoms.forEach((a, i) => {
+                        // Atom Update Logic (Inlined for stability and speed)
+                        if (mouse.x !== null) {
+                            const dx = a.x - mouse.x, dy = a.y - mouse.y;
+                            const d = Math.sqrt(dx * dx + dy * dy);
+                            if (d > 0 && d < mouseRadius) { // Added d > 0 check to prevent NaN
+                                const f = (mouseRadius - d) / mouseRadius;
+                                const m = attractMode ? -1.8 : 2.5;
+                                a.vx += (dx / d) * f * m;
+                                a.vy += (dy / d) * f * m;
+                                a.e = Math.min(1, a.e + 0.12);
+                            } else a.e = Math.max(0, a.e - 0.035);
+                        } else a.e = Math.max(0, a.e - 0.02);
+
+                        a.x += a.vx; a.y += a.vy;
+                        a.vx *= 0.95; a.vy *= 0.95;
+                        a.p += 0.12;
+
+                        // Particle trails
+                        if (a.e > 0.4 && Math.random() < 0.25) {
+                            trails.push({ x: a.x, y: a.y, c: a.t.color, l: 0.8 });
+                        }
+
+                        // Boundary checks
+                        if (a.x < 0) { a.x = 0; a.vx *= -0.8; }
+                        else if (a.x > canvas.width) { a.x = canvas.width; a.vx *= -0.8; }
+                        if (a.y < 0) { a.y = 0; a.vy *= -0.8; }
+                        else if (a.y > canvas.height) { a.y = canvas.height; a.vy *= -0.8; }
+
+                        // Draw Bonds
+                        for (let j = i + 1; j < atoms.length; j++) {
+                            const b = atoms[j];
+                            const dx = a.x - b.x, dy = a.y - b.y;
+                            const d = Math.sqrt(dx * dx + dy * dy);
+                            if (d > 0 && d < maxBondDistance) { // Safety check
+                                ctx.beginPath();
+                                ctx.moveTo(a.x, a.y);
+                                ctx.lineTo(b.x, b.y);
+                                const op = (1 - d / maxBondDistance) * 0.15 + (a.e + b.e) * 0.25;
+                                ctx.strokeStyle = `rgba(56, 189, 248, ${Math.min(0.8, op)})`;
+                                ctx.lineWidth = 1 + (a.e + b.e) * 1.5;
+                                ctx.stroke();
+                            }
+                        }
+
+                        // Draw Atom
+                        if (a.e > 0) {
+                            const grad = ctx.createRadialGradient(a.x, a.y, 0, a.x, a.y, a.r + a.e * 18);
+                            grad.addColorStop(0, a.t.color);
+                            grad.addColorStop(1, 'transparent');
+                            ctx.fillStyle = grad;
+                            ctx.beginPath(); ctx.arc(a.x, a.y, a.r + a.e * 18, 0, Math.PI * 2); ctx.fill();
+                        }
+                        ctx.fillStyle = a.t.color;
+                        const pulse = a.e > 0 ? Math.sin(a.p) * a.e * 2.5 : 0;
+                        ctx.beginPath(); ctx.arc(a.x, a.y, a.r + pulse, 0, Math.PI * 2); ctx.fill();
+                    });
+
+                    // HUD
+                    if (mouse.x !== null) {
+                        ctx.save();
+                        ctx.font = '600 12px Outfit';
+                        ctx.fillStyle = attractMode ? '#f472b6' : '#38bdf8';
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = attractMode ? '#f472b6' : '#38bdf8';
+                        ctx.fillText(attractMode ? '⚛ ATTRACT MODE' : '⚛ REPEL MODE', 30, canvas.height - 30);
+                        ctx.restore();
+                    }
+
+                    requestAnimationFrame(animate);
+                } catch (err) {
+                    console.error("Animation runtime error:", err);
+                    // Critical self-heal: reset atoms if state is corrupted
+                    if (atoms.length === 0) {
+                        for (let i = 0; i < atomCount; i++) atoms.push(new Atom());
+                    }
+                    requestAnimationFrame(animate);
+                }
+            }
+            animate();
+        }
+    </script>
+</body>
+
+</html>
