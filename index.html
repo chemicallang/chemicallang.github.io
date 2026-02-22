@@ -299,10 +299,12 @@
         }
 
         .install-label {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: var(--text-secondary);
-            margin-bottom: 0.75rem;
-            font-weight: 600;
+            margin-top: 0.75rem;
+            font-weight: 500;
+            opacity: 0.8;
+            text-align: center;
         }
 
         .install-command {
@@ -346,6 +348,37 @@
         .copy-btn:hover {
             background: var(--accent);
             color: white;
+        }
+
+        .install-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .tab-chip {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-chip:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(56, 189, 248, 0.3);
+            color: var(--text-primary);
+        }
+
+        .tab-chip.active {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
         .nav-section {
@@ -442,10 +475,7 @@
         }
 
         .download-section {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 3rem 2rem;
+            padding: 3rem 0;
             margin-top: 3rem;
         }
 
@@ -650,11 +680,17 @@
                 </div>
 
                 <div class="install-box">
-                    <div class="install-label">Quick Install (Unix/Linux/macOS)</div>
+                    <div class="install-tabs">
+                        <div class="tab-chip active" onclick="selectInstallTab('bash', event)">Bash</div>
+                        <div class="tab-chip" onclick="selectInstallTab('bash-tcc', event)">Bash (TCC)</div>
+                        <div class="tab-chip" onclick="selectInstallTab('ps', event)">PowerShell</div>
+                        <div class="tab-chip" onclick="selectInstallTab('ps-tcc', event)">PowerShell (TCC)</div>
+                    </div>
                     <div class="install-command">
                         <code id="install-cmd">curl -sSL https://chemicallang.com/install.sh | bash</code>
                         <button class="copy-btn" onclick="copyInstallCommand()">Copy</button>
                     </div>
+                    <div class="install-label" id="install-label">Quick Install (Unix/Linux/macOS)</div>
                 </div>
             </div>
         </section>
@@ -747,6 +783,38 @@
                     btn.textContent = originalText;
                 }, 2000);
             });
+        }
+
+        const installCommands = {
+            'bash': {
+                label: 'Quick Install (Unix/Linux/macOS)',
+                cmd: 'curl -sSL https://chemicallang.com/install.sh | bash'
+            },
+            'bash-tcc': {
+                label: 'Quick Install (TCC Variant - Unix/Linux/macOS)',
+                cmd: "curl -sSL https://chemicallang.com/install.sh | VARIANT='tcc' bash"
+            },
+            'ps': {
+                label: 'Quick Install (Windows PowerShell)',
+                cmd: 'iwr https://chemicallang.com/install.ps1 | iex'
+            },
+            'ps-tcc': {
+                label: 'Quick Install (TCC Variant - Windows PowerShell)',
+                cmd: "$env:VARIANT='tcc'; iwr https://chemicallang.com/install.ps1 | iex"
+            }
+        };
+
+        function selectInstallTab(tabId, event) {
+            // Update active tab UI
+            document.querySelectorAll('.tab-chip').forEach(chip => {
+                chip.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+
+            // Update label and command
+            const info = installCommands[tabId];
+            document.getElementById('install-label').textContent = info.label;
+            document.getElementById('install-cmd').textContent = info.cmd;
         }
 
         // OS-Aware Download Logic
